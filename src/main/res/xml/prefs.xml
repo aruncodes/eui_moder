@@ -1,0 +1,38 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+        android:key="disable_eui"
+        android:title="Enable Vanilla Android LockScreen and Notifications"
+        android:summary="Disables EUI customizations on lockscreen, statusbar, notifications, quicksettings etc"
+        android:defaultValue="true" />
+
+    <CheckBoxPreference
+        android:key="disable_cc"
+        android:title="Enable Vanilla Recent Apps"
+        android:summary="Disables EUI Control Center and Enable vanilla Recent Apps"
+        android:defaultValue="true" />
+
+    <CheckBoxPreference
+        android:key="enable_transparent_notif"
+        android:title="Enable Transparent Notifications"
+        android:summary="Enables EUI's Transparent notifications instead of Dark Material Theme"
+        android:defaultValue="false" />
+
+    <CheckBoxPreference
+        android:key="enable_statusbar_tint"
+        android:title="Enable Semi Transparent Status Bar"
+        android:summary="EUI apps don't respect default transparent Android status bar background.
+Enable this to show semi transparent status bar for them. (Only EUI apps)"
+        android:defaultValue="true" />
+
+    <CheckBoxPreference
+        android:key="set_standard_dpi"
+        android:title="Enable Standard Scale Mode"
+        android:summary="Force disable Zoom Scale mode of EUI when rooted!"
+        android:defaultValue="false" />
+
+    <Preference
+        android:summary="Developed by ArunBabu at le.com forum."
+        android:title="About"/>
+
+</PreferenceScreen>
