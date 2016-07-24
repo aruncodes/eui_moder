@@ -1,26 +1,23 @@
 package com.arun.xposed.eui_moder;
 
 /**
- * Created by arun on 7/9/16.
+ /* Created by arun on 7/9/16- 24/7/16.
  */
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.res.XResources;
 import android.graphics.Color;
 import android.util.TypedValue;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.Toast;
-
-import java.util.Map;
 
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.IXposedHookZygoteInit;
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 
@@ -41,6 +38,36 @@ public class MainClass implements IXposedHookLoadPackage,IXposedHookInitPackageR
         if (lpparam.packageName.equals("com.android.systemui")) {
 
             try {
+
+                /*findAndHookMethod("com.android.systemui.statusbar.BaseStatusBar",lpparam.classLoader,"isNotificationHighPriorityLeui",String.class,new XC_MethodHook() {
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                        param.setResult(true);
+                    }
+                });*/
+
+/*
+                //Enable notification access when app locked
+                Class<?> BSBClass = findClass("com.android.systemui.statusbar.BaseStatusBar", lpparam.classLoader);
+                Boolean notif_quick = (Boolean) getStaticObjectField(BSBClass, "LEUI_ACCESS_CONTROL");
+                setStaticObjectField(BSBClass, "LEUI_ACCESS_CONTROL",!notif_quick);
+*/
+
+/*                findAndHookMethod("com.android.systemui.statusbar.phone.PhoneStatusBar", lpparam.classLoader, "makeStatusBarView", new XC_MethodHook() {
+                    @Override
+                    protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+//                        Class<?> BSBClass = findClass("com.android.systemui.statusbar.BaseStatusBar", lpparam.classLoader);
+//                        setStaticObjectField(lpparam.getClass().getSuperclass(), "LEUI_ENABLE", false);
+                        setObjectField(param.thisObject,"LEUI_ENABLE",false);
+                    }
+
+                    @Override
+                    protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                        setStaticObjectField(lpparam.getClass().getSuperclass(), "LEUI_ENABLE", true);
+                        setObjectField(param.thisObject,"LEUI_ENABLE",true);
+                    }
+                });*/
+
                 //XposedBridge.log("Updating LEUI");
                 loadPrefs();
 
@@ -48,6 +75,13 @@ public class MainClass implements IXposedHookLoadPackage,IXposedHookInitPackageR
                     /* Disable LEUI Flag */
                     Class<?> KGClass = findClass("com.android.keyguard.KeyguardUpdateMonitor", lpparam.classLoader);
                     setStaticObjectField(KGClass, "LEUI_ENABLE", false);
+
+                    findAndHookMethod("com.leui.keyguard.LeUiUtils",lpparam.classLoader,"addFingerprintUnlockFailedCount", Context.class,new XC_MethodReplacement() {
+                        @Override
+                        protected Object replaceHookedMethod(MethodHookParam methodHookParam) throws Throwable {
+                            return null;
+                        }
+                    });
                 }
 
                 if (DISABLE_CC) {
@@ -94,7 +128,7 @@ public class MainClass implements IXposedHookLoadPackage,IXposedHookInitPackageR
                         a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
                         a.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
-                        a.getWindow().setStatusBarColor(Color.parseColor("#60000000")); // Semi transparent
+                        a.getWindow().setStatusBarColor(Color.parseColor("#C0000000")); // Semi transparent
                     } catch (Throwable e) {
 //                        Toast.makeText(a,"Flag setting failed",Toast.LENGTH_SHORT).show();
                     }
@@ -106,7 +140,7 @@ public class MainClass implements IXposedHookLoadPackage,IXposedHookInitPackageR
                 protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                     Activity a = (Activity) param.thisObject;
 //                    Toast.makeText(a,"Activity resumed",Toast.LENGTH_SHORT).show();
-                    a.getWindow().setStatusBarColor(Color.parseColor("#60000000")); // Semi transparent
+                    a.getWindow().setStatusBarColor(Color.parseColor("#C0000000")); // Semi transparent
                 }
             });
         }
@@ -171,6 +205,7 @@ public class MainClass implements IXposedHookLoadPackage,IXposedHookInitPackageR
     }
 
     private void loadPrefs(){
+
         try {
             XSharedPreferences prefs = new XSharedPreferences("com.arun.xposed.eui_moder");//,"com.arun.xposed.eui_moder_preferences");
 //            XposedBridge.log("PrefFile : " + prefs.getFile().getPath());
@@ -190,7 +225,7 @@ public class MainClass implements IXposedHookLoadPackage,IXposedHookInitPackageR
                 DARK_MATERIAL_COLOR = !prefs.getBoolean("enable_transparent_notif", false);
                 SEMI_TRAN_STATUS = prefs.getBoolean("enable_statusbar_tint", true);
 
-                XposedBridge.log("EUI Moder read " + DISABLE_EUI + " " + DISABLE_CC + " " + DARK_MATERIAL_COLOR);
+//                XposedBridge.log("EUI Moder read " + DISABLE_EUI + " " + DISABLE_CC + " " + DARK_MATERIAL_COLOR);
             } else {
                 XposedBridge.log("EUIMOD: Null prefs file!");
             }
